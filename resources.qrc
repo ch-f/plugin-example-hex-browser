@@ -1,0 +1,26 @@
+<!-- SPDX-License-Identifier: MIT -->
+<!-- File: resources.qrc -->
+<RCC>
+    <qresource prefix="/">
+        <!-- QML pages -->
+        <file alias="DemoMain.qml">qml/DemoMain.qml</file>
+        <file alias="FadeContainer.qml">qml/FadeContainer.qml</file>
+        <file alias="Page1.qml">qml/Page1.qml</file>
+        <file alias="Page2.qml">qml/Page2.qml</file>
+        <file alias="Page3.qml">qml/Page3.qml</file>
+        <file alias="Page4.qml">qml/Page4.qml</file>
+        <file alias="Page5.qml">qml/Page5.qml</file>
+        <file alias="Page6.qml">qml/Page6.qml</file>
+	<file alias="Page7.qml">qml/Page7.qml</file>
+
+        <!-- For the standalone test/debug version -->
+        <file alias="StandaloneView.qml">qml/StandaloneView.qml</file>
+
+        <!-- An image with alpha channel -->
+        <file alias="assets/dummy.png">assets/dummy.png</file>
+
+        <!-- A video -->
+        <file alias="assets/hexdev_logo_video.webm">assets/hexdev_logo_video.webm</file>
+
+    </qresource>
+</RCC>
