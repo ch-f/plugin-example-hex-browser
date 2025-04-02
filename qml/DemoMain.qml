@@ -62,11 +62,12 @@ Item {
 		anchors.bottom: parent.bottom
 		anchors.bottomMargin: 12
 		anchors.horizontalCenter: parent.horizontalCenter
-		spacing: 20
+		spacing: 60
 
 		// BACK BUTTON
 		Button {
 			text: "Back"
+			scale: 1.5
 			onClicked: {
 				if (!pauseButton.checked)
 					switchTimer.restart()
@@ -78,6 +79,7 @@ Item {
 		Button {
 			id: pauseButton
 			text: "Pause"
+			scale: 1.5
 			checkable: true
 			onToggled: {
 				switchTimer.running = !pauseButton.checked
@@ -87,6 +89,7 @@ Item {
 		// NEXT BUTTON
 		Button {
 			text: "Next"
+			scale: 1.5
 			onClicked: {
 				if (!pauseButton.checked)
 					switchTimer.restart()
