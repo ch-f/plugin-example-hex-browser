@@ -15,7 +15,7 @@ Item {
 		"qrc:/Page3.qml",
 		"qrc:/Page4.qml",
 		"qrc:/Page5.qml",
-		"qrc:/Page6.qml",
+		// "qrc:/Page6.qml", // disabled qtmedia
 		"qrc:/Page7.qml",
 	]
 	property var pageListNoOpenGL: [
