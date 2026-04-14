@@ -17,12 +17,14 @@ Item {
 		"qrc:/Page5.qml",
 		// "qrc:/Page6.qml", // disabled qtmedia
 		"qrc:/Page7.qml",
+		"qrc:/Page8.qml",
 	]
 	property var pageListNoOpenGL: [
 		"qrc:/Page1.qml",
 		"qrc:/Page2.qml",
 		"qrc:/Page5.qml",
 		"qrc:/Page7.qml",
+		"qrc:/Page8.qml",
 	]
 	// This property will be assigned one of the lists.
 	property var pageList: []
