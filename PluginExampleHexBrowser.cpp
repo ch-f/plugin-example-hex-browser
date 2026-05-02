@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 #include "PluginExampleHexBrowser.h"
 #include "HelloWorldItem.h"
+#include "Helper.h"
 #include <QDebug>
 #include <QQmlEngine>
 #include <QQmlComponent>
@@ -21,8 +22,10 @@ QString PluginExampleHexBrowser::pluginName() const
 	return QStringLiteral("plugin-example-hex-browser");
 }
 
-QQuickItem* PluginExampleHexBrowser::createItem(QQuickItem* parent)
+QQuickItem* PluginExampleHexBrowser::createItem(QQuickItem* parent, const QVariantMap &m_args)
 {
+	qDebug() << "PluginExampleHexBrowser received arguments" << m_args;
+
 #if 0 // choose c++ or qml example
 	HelloWorldItem* item = new HelloWorldItem(parent);
 
@@ -31,7 +34,7 @@ QQuickItem* PluginExampleHexBrowser::createItem(QQuickItem* parent)
 		item->setVerbose(isVerbose);
 	}
 #else
-	engine = nullptr;
+	QQmlEngine *engine = nullptr;
 
 	// Only call qmlEngine() if parent is non-null
 	if (parent) {
@@ -44,31 +47,37 @@ QQuickItem* PluginExampleHexBrowser::createItem(QQuickItem* parent)
 		engine = new QQmlEngine(this);
 	}
 
-	m_helper = new Helper(engine);
-	engine->rootContext()->setContextProperty("Helper", m_helper);
+	auto *itemContext = new QQmlContext(engine->rootContext(), engine);
+	auto *helper = new Helper(itemContext);
+	itemContext->setContextProperty("Helper", helper);
 
 	// Load actual QML
 	QQmlComponent component(engine, QUrl("qrc:/DemoMain.qml"));
 
 	if (component.status() == QQmlComponent::Error) {
 		qWarning() << "Failed to load DemoMain.qml from resource:" << component.errors();
+		delete itemContext;
 		return nullptr;
 	}
 
 	// Create QML object
-	QObject *obj = component.create();
+	QObject *obj = component.create(itemContext);
 	if (!obj) {
 		qWarning() << "Failed to create QML object:" << component.errors();
+		delete itemContext;
 		return nullptr;
 	}
 
 	// We expect a QQuickItem
-	item = qobject_cast<QQuickItem*>(obj);
+	QQuickItem *item = qobject_cast<QQuickItem*>(obj);
 	if (!item) {
 		qWarning() << "Root object is not a QQuickItem?";
-		obj->deleteLater();
+		delete obj;
+		delete itemContext;
 		return nullptr;
 	}
+
+	itemContext->setParent(item);
 
 	if (parent) {
 		// Put it under given parent item
@@ -81,10 +90,4 @@ QQuickItem* PluginExampleHexBrowser::createItem(QQuickItem* parent)
 
 #endif
 	return item;
-}
-
-void PluginExampleHexBrowser::setArguments(const QVariantMap &args)
-{
-	m_args = args;
-	qDebug() << "PluginExampleHexBrowser received arguments" << m_args;
 }

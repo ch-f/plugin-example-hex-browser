@@ -3,6 +3,8 @@
 
 #include <QtPlugin>
 #include <QQuickItem>
+#include <QString>
+#include <QVariantMap>
 
 class HexBrowserPluginInterface
 {
@@ -11,11 +13,9 @@ public:
 
 	virtual QString pluginName() const = 0;
 
-	virtual QQuickItem* createItem(QQuickItem* parent = nullptr) = 0;
-
-	virtual void setArguments(const QVariantMap &args) = 0;
+	virtual QQuickItem* createItem(QQuickItem* parent, const QVariantMap &args) = 0;
 };
 
-#define HexBrowserPluginInterface_iid "com.hexbrowser.HexBrowserPluginInterface/1.0"
+#define HexBrowserPluginInterface_iid "com.hexbrowser.HexBrowserPluginInterface/2.0"
 
 Q_DECLARE_INTERFACE(HexBrowserPluginInterface, HexBrowserPluginInterface_iid)

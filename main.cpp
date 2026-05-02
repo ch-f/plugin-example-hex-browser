@@ -30,11 +30,11 @@ int main(int argc, char *argv[])
 
 	// Create plugin instance
 	PluginExampleHexBrowser plugin;
-	plugin.setArguments({{"verboseConsole", true}});  // optional arguments
+	QVariantMap args = {{"verboseConsole", true}};
 
 	// Get root Object from view and tell plugin to create its QQuickItem under same root
 	QQuickItem* rootItem = qobject_cast<QQuickItem*>(view.rootObject());
-	QQuickItem* pluginItem = plugin.createItem(rootItem);
+	QQuickItem* pluginItem = plugin.createItem(rootItem, args);
 	if (!pluginItem) {
 		qWarning() << "Plugin failed to create item";
 		return -1;
