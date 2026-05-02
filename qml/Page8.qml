@@ -154,4 +154,6 @@ Rectangle {
 			}
 		}
 	}
+
+	CodeLineBadge { lines: 139 }
 }

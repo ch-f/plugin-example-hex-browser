@@ -75,4 +75,6 @@ Rectangle {
 		color: "grey"
 		visible: drawingCanvas.drawingPath.length === 0
 	}
+
+	CodeLineBadge { lines: 64 }
 }

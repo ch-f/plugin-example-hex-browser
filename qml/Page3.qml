@@ -42,4 +42,6 @@ Rectangle {
 			NumberAnimation { to: -8; duration: 2000; easing.type: Easing.InOutQuad }
 		}
 	}
+
+	CodeLineBadge { lines: 38 }
 }

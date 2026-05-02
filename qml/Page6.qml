@@ -34,4 +34,6 @@ Rectangle {
 			}
 		}
 	}
+
+	CodeLineBadge { lines: 30 }
 }

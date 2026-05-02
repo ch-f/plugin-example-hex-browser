@@ -3,6 +3,7 @@
 <RCC>
     <qresource prefix="/">
         <!-- QML pages -->
+        <file alias="CodeLineBadge.qml">qml/CodeLineBadge.qml</file>
         <file alias="DemoMain.qml">qml/DemoMain.qml</file>
         <file alias="FadeContainer.qml">qml/FadeContainer.qml</file>
         <file alias="Page1.qml">qml/Page1.qml</file>

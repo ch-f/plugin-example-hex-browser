@@ -16,4 +16,6 @@ Rectangle {
 		horizontalAlignment: Text.AlignHCenter
 		verticalAlignment: Text.AlignVCenter
 	}
+
+	CodeLineBadge { lines: 17 }
 }

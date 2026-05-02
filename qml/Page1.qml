@@ -72,5 +72,6 @@ Rectangle {
 			}
 		}
 	}
-}
 
+	CodeLineBadge { lines: 65 }
+}

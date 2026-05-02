@@ -108,4 +108,6 @@ Rectangle {
 			drawCanvas.requestPaint()
 		}
 	}
+
+	CodeLineBadge { lines: 82 }
 }

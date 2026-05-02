@@ -36,4 +36,6 @@ Rectangle {
 		height: testPattern.height - 10 // subtract top and bottom borders
 		color: "red"
 	}
+
+	CodeLineBadge { lines: 31; darkBackground: true }
 }
