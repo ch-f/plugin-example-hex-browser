@@ -15,25 +15,17 @@ Rectangle {
 			anchors.horizontalCenter: parent.horizontalCenter
 			spacing: 20
 
-			Rectangle {
-				width: 82
-				height: 58
+			Image {
+				width: 103
+				height: 77
 				anchors.verticalCenter: parent.verticalCenter
-				radius: 8
-				color: "#41cd52"
-
-				Text {
-					anchors.centerIn: parent
-					text: "Qt"
-					color: "white"
-					font.pixelSize: 30
-					font.bold: true
-				}
+				source: "qrc:/assets/qt_logo.svg"
+				fillMode: Image.PreserveAspectFit
 			}
 
 			Image {
 				id: hexBrowserLogo
-				width: 70; height: 70
+				width: 84; height: 84
 				anchors.verticalCenter: parent.verticalCenter
 				source: "qrc:/assets/hex-browser.svg"
 				fillMode: Image.PreserveAspectFit
@@ -66,7 +58,7 @@ Rectangle {
 
 		Text {
 			width: parent.width
-			text: "Qt Quick plugin for hex-browser"
+			text: "<font color=\"#41CD52\">Qt Quick</font> plugin for <font color=\"#FF6347\">hex-browser</font>"
 			font.pixelSize: 28
 			font.bold: true
 			color: "#202020"
@@ -98,5 +90,5 @@ Rectangle {
 		}
 	}
 
-	CodeLineBadge { lines: 87 }
+	CodeLineBadge { lines: 80 }
 }
