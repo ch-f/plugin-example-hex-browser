@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 #include "Helper.h"
 #include <sys/utsname.h>
+#include <QQmlComponent>
+#include <QQmlEngine>
 #include <QStringList>
+#include <QUrl>
 
 Helper::Helper(QObject *parent) : QObject(parent) {}
 
@@ -28,4 +31,12 @@ bool Helper::hasOpenGLSupport() {
 	QOpenGLContext ctx;
 	ctx.create();
 	return ctx.isValid();
+}
+
+bool Helper::hasQtMultimediaSupport() {
+	QQmlEngine fallbackEngine;
+	QQmlEngine *engine = qmlEngine(this);
+	QQmlComponent component(engine ? engine : &fallbackEngine);
+	component.setData("import QtQml\nimport QtMultimedia\nQtObject {}", QUrl());
+	return component.status() != QQmlComponent::Error;
 }

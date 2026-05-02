@@ -15,7 +15,6 @@ Item {
 		"qrc:/Page3.qml",
 		"qrc:/Page4.qml",
 		"qrc:/Page5.qml",
-		// "qrc:/Page6.qml", // disabled qtmedia
 		"qrc:/Page7.qml",
 		"qrc:/Page8.qml",
 	]
@@ -31,12 +30,17 @@ Item {
 	property int currentIndex: 0
 
 	Component.onCompleted: {
-		console.log("OpenGL supported:", Helper.hasOpenGLSupport());
-		if (Helper.hasOpenGLSupport()) {
-			pageList = pageListWithOpenGL;
-		} else {
-			pageList = pageListNoOpenGL;
-		}
+		var openGLSupported = Helper.hasOpenGLSupport();
+		var qtMultimediaSupported = Helper.hasQtMultimediaSupport();
+
+		console.log("OpenGL supported:", openGLSupported);
+		console.log("QtMultimedia supported:", qtMultimediaSupported);
+
+		var pages = openGLSupported ? pageListWithOpenGL.slice() : pageListNoOpenGL.slice();
+		if (openGLSupported && qtMultimediaSupported)
+			pages.splice(5, 0, "qrc:/Page6.qml");
+		pageList = pages;
+
 		// Initialize the FadeContainer with the first page.
 		fadeBox.switchTo(pageList[currentIndex])
 	}

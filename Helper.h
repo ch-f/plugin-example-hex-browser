@@ -15,4 +15,5 @@ public:
 
 	Q_INVOKABLE QString getSystemInfo();
 	Q_INVOKABLE bool hasOpenGLSupport();
+	Q_INVOKABLE bool hasQtMultimediaSupport();
 };
