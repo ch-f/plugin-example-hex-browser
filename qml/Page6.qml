@@ -7,6 +7,8 @@ Rectangle {
 	anchors.fill: parent
 	color: "#343434"
 
+	readonly property string videoSource: "qrc:/assets/hexdev_logo_video.webm"
+	readonly property string videoFileName: videoSource.substring(videoSource.lastIndexOf("/") + 1)
 	readonly property real progress: video.duration > 0 ? video.position / video.duration : 0
 	property bool paused: false
 	property bool reverse: false
@@ -74,7 +76,7 @@ Rectangle {
 				anchors.centerIn: parent
 				width: Math.min(parent.width, parent.height)
 				height: width
-				source: "qrc:/assets/hexdev_logo_video.webm"
+				source: root.videoSource
 				autoPlay: true
 				fillMode: VideoOutput.PreserveAspectFit
 				loops: 1
@@ -149,5 +151,36 @@ Rectangle {
 		}
 	}
 
-	CodeLineBadge { lines: 131 }
+	Item {
+		id: videoCaption
+		anchors.left: panel.left
+		anchors.bottom: panel.top
+		anchors.bottomMargin: 6
+		width: panel.width
+		height: videoFileName.implicitHeight
+
+		Text {
+			id: videoLabel
+			anchors.left: parent.left
+			anchors.baseline: videoFileName.baseline
+			text: "video:"
+			color: "#AAAAAA"
+			font.pixelSize: 14
+			font.bold: true
+		}
+
+		Text {
+			id: videoFileName
+			anchors.left: videoLabel.right
+			anchors.leftMargin: 4
+			width: Math.max(80, Math.min(280, parent.width - videoLabel.width - anchors.leftMargin))
+			text: root.videoFileName
+			color: "#AAAAAA"
+			font.pixelSize: 14
+			font.family: "monospace"
+			elide: Text.ElideRight
+		}
+	}
+
+	CodeLineBadge { lines: 161 }
 }
