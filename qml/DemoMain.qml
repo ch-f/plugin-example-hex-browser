@@ -54,6 +54,29 @@ Item {
 		anchors.fill: parent
 	}
 
+	// Observe page presses without taking the event from the loaded page.
+	// Drag handling stays page-local, so long drags owned by a child MouseArea
+	// may still outlive this timer reset.
+	MouseArea {
+		anchors.fill: fadeBox
+		acceptedButtons: Qt.AllButtons
+		propagateComposedEvents: true
+		onPressed: function(mouse) {
+			root.resetSwitchTimer()
+			mouse.accepted = false
+		}
+	}
+
+	PointHandler {
+		acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchScreen | PointerDevice.TouchPad | PointerDevice.Stylus
+		onActiveChanged: {
+			if (pauseButton.checked)
+				return
+
+			active ? switchTimer.stop() : root.resetSwitchTimer()
+		}
+	}
+
 	// Timer to switch pages automatically every 5 seconds.
 	Timer {
 		id: switchTimer
@@ -76,8 +99,7 @@ Item {
 			text: "Back"
 			scale: 1.5
 			onClicked: {
-				if (!pauseButton.checked)
-					switchTimer.restart()
+				root.resetSwitchTimer()
 				previousPage()
 			}
 		}
@@ -98,8 +120,7 @@ Item {
 			text: "Next"
 			scale: 1.5
 			onClicked: {
-				if (!pauseButton.checked)
-					switchTimer.restart()
+				root.resetSwitchTimer()
 				nextPage()
 			}
 		}
@@ -133,5 +154,10 @@ Item {
 	function previousPage() {
 		currentIndex = (currentIndex - 1 + pageList.length) % pageList.length;
 		fadeBox.switchTo(pageList[currentIndex]);
+	}
+
+	function resetSwitchTimer() {
+		if (!pauseButton.checked)
+			switchTimer.restart()
 	}
 }
