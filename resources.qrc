@@ -13,6 +13,7 @@
         <file alias="Page6.qml">qml/Page6.qml</file>
         <file alias="Page7.qml">qml/Page7.qml</file>
         <file alias="Page8.qml">qml/Page8.qml</file>
+        <file alias="Page9.qml">qml/Page9.qml</file>
 
         <!-- For the standalone test/debug version -->
         <file alias="StandaloneView.qml">qml/StandaloneView.qml</file>
@@ -22,6 +23,9 @@
 
         <!-- A video -->
         <file alias="assets/hexdev_logo_video.webm">assets/hexdev_logo_video.webm</file>
+
+        <!-- A 3D model -->
+        <file alias="assets/hexdev_logo.glb">assets/hexdev_logo.glb</file>
 
     </qresource>
 </RCC>

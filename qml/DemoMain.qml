@@ -17,6 +17,7 @@ Item {
 		"qrc:/Page5.qml",
 		"qrc:/Page7.qml",
 		"qrc:/Page8.qml",
+		"qrc:/Page9.qml",
 	]
 	property var pageListNoOpenGL: [
 		"qrc:/Page1.qml",

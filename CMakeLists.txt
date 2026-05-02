@@ -8,8 +8,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-# Force a minimum Qt6 version of 6.4
-find_package(Qt6 6.4 REQUIRED COMPONENTS Core Qml Quick)
+find_package(Qt6 6.10 REQUIRED COMPONENTS Core Qml Quick Quick3D Quick3DAssetUtils)
 
 add_library(plugin_example_hex_browser SHARED
         PluginExampleHexBrowser.cpp
@@ -31,6 +30,8 @@ target_link_libraries(plugin_example_hex_browser PRIVATE
         Qt6::Core
         Qt6::Qml
         Qt6::Quick
+        Qt6::Quick3D
+        Qt6::Quick3DAssetUtils
 )
 
 include(GNUInstallDirs)
