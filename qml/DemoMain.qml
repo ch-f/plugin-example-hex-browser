@@ -45,8 +45,6 @@ Item {
 	FadeContainer {
 		id: fadeBox
 		anchors.fill: parent
-		// Initially load the page from pageList.
-		currentSource: pageList.length > 0 ? pageList[currentIndex] : ""
 	}
 
 	// Timer to switch pages automatically every 5 seconds.
