@@ -44,6 +44,8 @@ To use the plugin in [hexDEV GmbH](https://hexdev.de) its hex-browser:
 
 ## License
 
-This project is licensed under the **MIT License**.
+The source code in this repository is licensed under the **MIT License**.
 
 See [LICENSE](LICENSE) for details.
+
+Some media assets are not covered by the MIT License. See [assets/README.md](assets/README.md).
