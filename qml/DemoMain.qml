@@ -20,6 +20,7 @@ Item {
 		"qrc:/Page9.qml",
 		"qrc:/Page10.qml",
 		"qrc:/Page11.qml",
+		"qrc:/Page12.qml",
 	]
 	property var pageListNoOpenGL: [
 		"qrc:/Page1.qml",
@@ -29,6 +30,7 @@ Item {
 		"qrc:/Page8.qml",
 		"qrc:/Page10.qml",
 		"qrc:/Page11.qml",
+		"qrc:/Page12.qml",
 	]
 	// This property will be assigned one of the lists.
 	property var pageList: []
