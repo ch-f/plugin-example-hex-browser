@@ -22,8 +22,14 @@
         <file alias="StandaloneView.qml">qml/StandaloneView.qml</file>
 
         <!-- Images -->
+        <file alias="assets/chromium_logo.svg">assets/chromium_logo.svg</file>
+        <file alias="assets/fleetwarden_logo.svg">assets/fleetwarden_logo.svg</file>
+        <file alias="assets/flutter_logo.svg">assets/flutter_logo.svg</file>
         <file alias="assets/hex-browser.svg">assets/hex-browser.svg</file>
         <file alias="assets/hexdev_logo.svg">assets/hexdev_logo.svg</file>
+        <file alias="assets/qt_logo.svg">assets/qt_logo.svg</file>
+        <file alias="assets/tux_logo.svg">assets/tux_logo.svg</file>
+        <file alias="assets/yocto_project_logo.svg">assets/yocto_project_logo.svg</file>
 
         <!-- A video -->
         <file alias="assets/hexdev_logo_video.webm">assets/hexdev_logo_video.webm</file>
