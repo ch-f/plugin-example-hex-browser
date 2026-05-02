@@ -15,6 +15,7 @@
         <file alias="Page7.qml">qml/Page7.qml</file>
         <file alias="Page8.qml">qml/Page8.qml</file>
         <file alias="Page9.qml">qml/Page9.qml</file>
+        <file alias="Page10.qml">qml/Page10.qml</file>
 
         <!-- For the standalone test/debug version -->
         <file alias="StandaloneView.qml">qml/StandaloneView.qml</file>
