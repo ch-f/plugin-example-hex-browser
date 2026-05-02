@@ -32,10 +32,35 @@ Rectangle {
 			}
 
 			Image {
+				id: hexBrowserLogo
 				width: 70; height: 70
 				anchors.verticalCenter: parent.verticalCenter
 				source: "qrc:/assets/hex-browser.svg"
 				fillMode: Image.PreserveAspectFit
+
+				Timer {
+					id: shakeTimer
+					interval: hexBrowserLogo.pauseDuration()
+					onTriggered: shakeAnimation.start()
+					Component.onCompleted: start()
+				}
+
+				SequentialAnimation {
+					id: shakeAnimation
+					NumberAnimation { target: hexBrowserLogo; property: "rotation"; to: 0; duration: 0 }
+					NumberAnimation { target: hexBrowserLogo; property: "rotation"; to: 4; duration: 120; easing.type: Easing.InOutSine }
+					NumberAnimation { target: hexBrowserLogo; property: "rotation"; to: -4; duration: 160; easing.type: Easing.InOutSine }
+					NumberAnimation { target: hexBrowserLogo; property: "rotation"; to: 2; duration: 120; easing.type: Easing.InOutSine }
+					NumberAnimation { target: hexBrowserLogo; property: "rotation"; to: 0; duration: 140; easing.type: Easing.OutQuad }
+					onStopped: {
+						shakeTimer.interval = hexBrowserLogo.pauseDuration()
+						shakeTimer.restart()
+					}
+				}
+
+				function pauseDuration() {
+					return Math.round(1000 + Math.random() * 4000)
+				}
 			}
 		}
 
@@ -73,5 +98,5 @@ Rectangle {
 		}
 	}
 
-	CodeLineBadge { lines: 65 }
+	CodeLineBadge { lines: 87 }
 }
