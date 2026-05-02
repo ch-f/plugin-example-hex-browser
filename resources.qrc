@@ -20,6 +20,7 @@
 
         <!-- An image with alpha channel -->
         <file alias="assets/dummy.png">assets/dummy.png</file>
+        <file alias="assets/hex-browser.svg">assets/hex-browser.svg</file>
 
         <!-- A video -->
         <file alias="assets/hexdev_logo_video.webm">assets/hexdev_logo_video.webm</file>
