@@ -8,6 +8,32 @@ Rectangle {
 
 	// Holds each active pointer's list of (x,y) positions
 	property var pointerPaths: ({})
+	property var pointerColors: ["#EC0000", "#FF901E", "#007F98", "#ffffff"]
+	property bool userHasDrawn: false
+	property real ballX: 80
+	property real ballY: 80
+	property real ballVX: 4
+	property real ballVY: 3
+	property real ballRadius: Math.max(10, Math.min(width, height) * 0.025)
+
+	function moveBall() {
+		var r = ballRadius
+		ballX += ballVX
+		ballY += ballVY
+		if (ballX < r || ballX > width - r) {
+			ballVX = -ballVX
+			ballX = Math.max(r, Math.min(width - r, ballX))
+		}
+		if (ballY < r || ballY > height - r) {
+			ballVY = -ballVY
+			ballY = Math.max(r, Math.min(height - r, ballY))
+		}
+		drawCanvas.requestPaint()
+	}
+
+	function colorForPointer(pointerId) {
+		return pointerColors[Math.abs(Number(pointerId)) % pointerColors.length]
+	}
 
 	Text {
 		id: textPrompt
@@ -15,7 +41,7 @@ Rectangle {
 		text: "Draw on me"
 		font.pointSize: 24
 		color: "#b6b6b6"
-		visible: true
+		visible: !root.userHasDrawn
 	}
 
 	Canvas {
@@ -26,9 +52,17 @@ Rectangle {
 			var ctx = getContext("2d")
 			ctx.clearRect(0, 0, width, height)
 
+			if (!root.userHasDrawn) {
+				ctx.beginPath()
+				ctx.arc(root.ballX, root.ballY, root.ballRadius, 0, 2 * Math.PI)
+				ctx.fillStyle = root.pointerColors[0]
+				ctx.fill()
+			}
+
 			// Draw each pointer's path
 			for (var pointerId in pointerPaths) {
 				var points = pointerPaths[pointerId]
+				var color = root.colorForPointer(pointerId)
 				if (points.length > 1) {
 					ctx.beginPath()
 					ctx.moveTo(points[0].x, points[0].y)
@@ -36,7 +70,7 @@ Rectangle {
 						ctx.lineTo(points[i].x, points[i].y)
 					}
 					ctx.lineWidth = 3
-					ctx.strokeStyle = "red"
+					ctx.strokeStyle = color
 					ctx.stroke()
 				}
 
@@ -45,7 +79,7 @@ Rectangle {
 					var last = points[points.length - 1]
 					ctx.beginPath()
 					ctx.arc(last.x, last.y, 10, 0, 2 * Math.PI)
-					ctx.fillStyle = "red"
+					ctx.fillStyle = color
 					ctx.fill()
 				}
 			}
@@ -57,7 +91,7 @@ Rectangle {
 
 		// Called when a new touch point is pressed
 		onPressed: function (touchPoints) {
-			textPrompt.visible = false
+			root.userHasDrawn = true
 			for (var i = 0; i < touchPoints.length; i++) {
 				var tp = touchPoints[i]
 				var id = tp.pointId
@@ -109,5 +143,12 @@ Rectangle {
 		}
 	}
 
-	CodeLineBadge { lines: 82 }
+	Timer {
+		interval: 16
+		repeat: true
+		running: !root.userHasDrawn
+		onTriggered: root.moveBall()
+	}
+
+	CodeLineBadge { lines: 119 }
 }
