@@ -19,9 +19,9 @@
         <!-- For the standalone test/debug version -->
         <file alias="StandaloneView.qml">qml/StandaloneView.qml</file>
 
-        <!-- An image with alpha channel -->
-        <file alias="assets/dummy.png">assets/dummy.png</file>
+        <!-- Images -->
         <file alias="assets/hex-browser.svg">assets/hex-browser.svg</file>
+        <file alias="assets/hexdev_logo.svg">assets/hexdev_logo.svg</file>
 
         <!-- A video -->
         <file alias="assets/hexdev_logo_video.webm">assets/hexdev_logo_video.webm</file>
