@@ -10,6 +10,8 @@ Rectangle {
 	property real hue: 0.58
 	property real saturation: 0.85
 	property real value: 0.95
+	property bool demoRunning: true
+	property real demoTime: 0
 	readonly property color selectedColor: Qt.hsva(hue, saturation, value, 1.0)
 	readonly property string selectedHex: selectedColor.toString().toUpperCase()
 
@@ -24,6 +26,27 @@ Rectangle {
 
 	function updateHue(py) {
 		hue = clamp(py / hueSlider.height, 0, 1)
+	}
+
+	function pingPong(v) {
+		var p = v % 2
+		return p < 1 ? p : 2 - p
+	}
+
+	function stopDemo() {
+		demoRunning = false
+	}
+
+	Timer {
+		interval: 33
+		repeat: true
+		running: root.demoRunning
+		onTriggered: {
+			root.demoTime += 0.010
+			root.saturation = root.pingPong(root.demoTime * 0.55)
+			root.value = 0.52 + Math.sin(root.demoTime * 2.2) * 0.42
+			root.hue = root.pingPong(root.demoTime * 0.35)
+		}
 	}
 
 	Item {
@@ -72,6 +95,7 @@ Rectangle {
 			MouseArea {
 				anchors.fill: parent
 				onPressed: function(mouse) {
+					root.stopDemo()
 					root.updateSv(mouse.x, mouse.y)
 				}
 				onPositionChanged: function(mouse) {
@@ -110,6 +134,7 @@ Rectangle {
 			MouseArea {
 				anchors.fill: parent
 				onPressed: function(mouse) {
+					root.stopDemo()
 					root.updateHue(mouse.y)
 				}
 				onPositionChanged: function(mouse) {
@@ -155,5 +180,5 @@ Rectangle {
 		}
 	}
 
-	CodeLineBadge { lines: 139 }
+	CodeLineBadge { lines: 161 }
 }
