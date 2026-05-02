@@ -20,6 +20,7 @@ Rectangle {
 	]
 	readonly property real blockSize: Math.max(34, Math.min(70, width / 9, height / 5))
 	readonly property real ropeLength: Math.max(88, Math.min(185, height * 0.36))
+	property bool userInteracted: false
 
 	function resetExcept(index) {
 		for (var i = 0; i < pendulums.count; ++i) {
@@ -27,6 +28,19 @@ Rectangle {
 			if (pendulum && i !== index)
 				pendulum.angle = 0;
 		}
+	}
+
+	function stopDemo() {
+		userInteracted = true;
+		startupAnimation.stop();
+		autoTimer.stop();
+		autoAnimation.stop();
+		cradleAnimation.stop();
+	}
+
+	function scheduleDemo() {
+		if (!userInteracted)
+			autoTimer.restart();
 	}
 
 	function releaseBlock(index, angle) {
@@ -46,6 +60,26 @@ Rectangle {
 		cradleAnimation.direction = angle > 0 ? -1 : 1;
 		cradleAnimation.power = Math.max(12, Math.min(34, Math.abs(angle)));
 		cradleAnimation.start();
+	}
+
+	function swingOut(index, angle) {
+		var pendulum = pendulums.itemAt(index);
+		if (!pendulum)
+			return;
+
+		root.resetExcept(index);
+		autoOut.target = pendulum;
+		autoOut.to = angle;
+		autoAnimation.index = index;
+		autoAnimation.angle = angle;
+		autoAnimation.start();
+	}
+
+	function autoSwing() {
+		if (userInteracted || startupAnimation.running || cradleAnimation.running || autoAnimation.running)
+			return;
+
+		swingOut(Math.floor(Math.random() * pendulums.count), Math.random() < 0.5 ? -34 : 34);
 	}
 
 	Item {
@@ -133,8 +167,7 @@ Rectangle {
 
 							onActiveChanged: {
 								if (active) {
-									startupAnimation.stop();
-									cradleAnimation.stop();
+									root.stopDemo();
 									root.resetExcept(index);
 									startAngle = pendulum.angle;
 								} else {
@@ -161,6 +194,15 @@ Rectangle {
 	}
 
 	SequentialAnimation {
+		id: autoAnimation
+		property int index: 0
+		property real angle: 0
+
+		NumberAnimation { id: autoOut; property: "angle"; duration: 520; easing.type: Easing.OutQuad }
+		ScriptAction { script: root.releaseBlock(autoAnimation.index, autoAnimation.angle) }
+	}
+
+	SequentialAnimation {
 		id: cradleAnimation
 		property int sourceIndex: 0
 		property int targetIndex: 0
@@ -183,9 +225,17 @@ Rectangle {
 		NumberAnimation { id: targetIn; property: "angle"; to: 0; duration: 430; easing.type: Easing.InQuad }
 		NumberAnimation { id: echoOut; property: "angle"; to: -cradleAnimation.direction * cradleAnimation.power * 0.45; duration: 330; easing.type: Easing.OutQuad }
 		NumberAnimation { id: echoIn; property: "angle"; to: 0; duration: 390; easing.type: Easing.InQuad }
+		ScriptAction { script: root.scheduleDemo() }
+	}
+
+	Timer {
+		id: autoTimer
+		interval: 4100
+		repeat: false
+		onTriggered: root.autoSwing()
 	}
 
 	Component.onCompleted: startupAnimation.start()
 
-	CodeLineBadge { lines: 166 }
+	CodeLineBadge { lines: 207 }
 }
