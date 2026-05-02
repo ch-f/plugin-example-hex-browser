@@ -9,7 +9,7 @@ Rectangle {
 	color: "#202020"
 
 	property real spinX: 0
-	property real spinY: 0.15
+	property real spinY: 0.3
 	readonly property real dragScale: 0.5
 	readonly property bool activePage: parent !== null && parent.opacity >= 0.99
 	readonly property bool retainAfterFade: true
@@ -27,6 +27,12 @@ Rectangle {
 			backgroundMode: SceneEnvironment.Color
 			antialiasingMode: SceneEnvironment.MSAA
 			antialiasingQuality: SceneEnvironment.High
+			tonemapMode: SceneEnvironment.TonemapModeAces
+			specularAAEnabled: true
+			aoEnabled: true
+			aoStrength: 38
+			aoDistance: 24
+			aoSoftness: 18
 		}
 
 		PerspectiveCamera {
@@ -35,11 +41,37 @@ Rectangle {
 		}
 
 		DirectionalLight {
-			z: 400
-			eulerRotation.x: -35
-			eulerRotation.y: 35
-			brightness: 2.0
-			ambientColor: "#606060"
+			eulerRotation.x: -50
+			eulerRotation.y: -35
+			brightness: 1.35
+			color: "#FFF2DD"
+			ambientColor: "#323232"
+		}
+
+		DirectionalLight {
+			eulerRotation.x: 18
+			eulerRotation.y: 145
+			brightness: 0.28
+			color: "#f4f8fe"
+		}
+
+		PointLight {
+			x: 105
+			y: 45
+			z: -80
+			brightness: 55
+			color: "#d3e3fb"
+		}
+
+		SpotLight {
+			x: -32
+			y: 68
+			z: 245
+			eulerRotation.x: -14
+			eulerRotation.y: -7
+			brightness: 11
+			coneAngle: 20
+			innerConeAngle: 5
 		}
 
 		Node {
@@ -102,5 +134,5 @@ Rectangle {
 		}
 	}
 
-	CodeLineBadge { lines: 87 }
+	CodeLineBadge { lines: 118 }
 }
