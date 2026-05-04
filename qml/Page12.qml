@@ -26,7 +26,7 @@ Rectangle {
 	readonly property var features: [
 		{ "title": "hex-browser", "body": "Providing runtime engines for your app, integrated into a secure Linux.", "accent": red, "source": "qrc:/assets/hex-browser.svg" },
 		{ "title": "Chromium engine", "body": "HTML apps for embedded devices, tuned for constrained RAM.", "accent": chromiumBlue, "source": "qrc:/assets/chromium_logo.svg" },
-		{ "title": "Qt plugins", "body": "Load native .so plugins and QML screens in the same shell.", "accent": qtGreen, "source": "qrc:/assets/qt_logo.svg" },
+		{ "title": "Qt/QML plugins", "body": "Load native plugins for RTSP streaming, video playback and gallery viewing.", "accent": qtGreen, "source": "qrc:/assets/qt_logo.svg" },
 		{ "title": "Native Flutter", "body": "Flutter apps run as native content, not as HTML tabs.", "accent": flutterBlue, "source": "qrc:/assets/flutter_logo.svg" },
 		{ "title": "OE/Yocto Linux", "body": "Tempo2Market delivers reproducible Linux images and BSPs.", "accent": yoctoMagenta, "source": "qrc:/assets/yocto_project_logo.svg" },
 		{ "title": "Fleet Warden", "body": "Cloud fleet management with OTA, telemetry and LIVE service.", "accent": orange, "source": "qrc:/assets/fleetwarden_logo.svg" }
