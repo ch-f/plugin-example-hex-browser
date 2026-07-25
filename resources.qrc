@@ -28,9 +28,16 @@
         <file alias="assets/fleetwarden_logo.svg">assets/fleetwarden_logo.svg</file>
         <file alias="assets/flutter_logo.svg">assets/flutter_logo.svg</file>
         <file alias="assets/hex-browser.svg">assets/hex-browser.svg</file>
+        <file alias="assets/hex-slideshow-runtime-preview.webp">assets/hex-slideshow-runtime-preview.webp</file>
+        <file alias="assets/hex_wayland_logo_favicon.webp">assets/hex_wayland_logo_favicon.webp</file>
         <file alias="assets/hexdev_logo.svg">assets/hexdev_logo.svg</file>
+        <file alias="assets/icon_flutter.svg">assets/icon_flutter.svg</file>
+        <file alias="assets/microbrowser-logo.webp">assets/microbrowser-logo.webp</file>
+        <file alias="assets/native_plugin_logo.svg">assets/native_plugin_logo.svg</file>
         <file alias="assets/qt_logo.svg">assets/qt_logo.svg</file>
+        <file alias="assets/rtsp_logo.svg">assets/rtsp_logo.svg</file>
         <file alias="assets/tux_logo.svg">assets/tux_logo.svg</file>
+        <file alias="assets/waydroid-logo.webp">assets/waydroid-logo.webp</file>
         <file alias="assets/yocto_project_logo.svg">assets/yocto_project_logo.svg</file>
 
         <!-- A video -->

@@ -1,354 +1,395 @@
 // SPDX-License-Identifier: MIT
+pragma ComponentBehavior: Bound
 import QtQuick
 
 Rectangle {
 	id: root
 	anchors.fill: parent
-	color: "#000327"
+	color: "#050714"
 	gradient: Gradient {
-		GradientStop { position: 0; color: "#000327" }
-		GradientStop { position: 0.52 + Math.sin(root.t * 0.22) * 0.06; color: "#003152" }
-		GradientStop { position: 1; color: "#007F98" }
+		GradientStop { position: 0; color: "#050714" }
+		GradientStop { position: 0.58 + Math.sin(root.t * 0.16) * 0.025; color: "#082A3F" }
+		GradientStop { position: 1; color: "#075467" }
 	}
 
-	readonly property color red: "#EC0000"
 	readonly property color orange: "#FF901E"
-	readonly property color night: "#000327"
-	readonly property color deep: "#003152"
-	readonly property color sea: "#007F98"
-	readonly property color qtGreen: "#41CD52"
-	readonly property color flutterBlue: "#44D1FD"
-	readonly property color chromiumBlue: "#679EF5"
-	readonly property color yoctoMagenta: "#D73B9A"
 	property real t: 0
 	property int selected: 0
-	property bool userSelected: false
+	readonly property real autoSelectionDelay: 3
+	readonly property real interactionDelay: 20
+	property real nextAutoSelectionAt: autoSelectionDelay
 	readonly property var features: [
-		{ "title": "hex-browser", "body": "Providing runtime engines for your app, integrated into a secure Linux.", "accent": red, "source": "qrc:/assets/hex-browser.svg" },
-		{ "title": "Chromium engine", "body": "HTML apps for embedded devices, tuned for constrained RAM.", "accent": chromiumBlue, "source": "qrc:/assets/chromium_logo.svg" },
-		{ "title": "Qt/QML plugins", "body": "Load native plugins for RTSP streaming, video playback and gallery viewing.", "accent": qtGreen, "source": "qrc:/assets/qt_logo.svg" },
-		{ "title": "Native Flutter", "body": "Flutter apps run as native content, not as HTML tabs.", "accent": flutterBlue, "source": "qrc:/assets/flutter_logo.svg" },
-		{ "title": "OE/Yocto Linux", "body": "Tempo2Market delivers reproducible Linux images and BSPs.", "accent": yoctoMagenta, "source": "qrc:/assets/yocto_project_logo.svg" },
-		{ "title": "Fleet Warden", "body": "Cloud fleet management with OTA, telemetry and LIVE service.", "accent": orange, "source": "qrc:/assets/fleetwarden_logo.svg" }
+		{ "title": "Web / Chromium", "body": "HTML5 apps in the integrated Chromium engine.", "asset": "chromium_logo.svg" },
+		{ "title": "Native Flutter", "body": "Flutter apps run as native content, not as web tabs.", "asset": "icon_flutter.svg" },
+		{ "title": "Qt / QML", "body": "Native Qt Quick interfaces loaded directly into the shell.", "asset": "qt_logo.svg" },
+		{ "title": "Native plugins", "body": "Extend the runtime with custom C++ and QML plugins.", "asset": "native_plugin_logo.svg" },
+		{ "title": "Wayland apps", "body": "Host native Wayland applications in a managed session.", "asset": "hex_wayland_logo_favicon.webp" },
+		{ "title": "RTSP / RTSPS", "body": "Display live camera and protected network streams.", "asset": "rtsp_logo.svg" },
+		{ "title": "Slideshow", "body": "Run image and video playlists as a native runtime.", "asset": "hex-slideshow-runtime-preview.webp" },
+		{ "title": "Waydroid", "body": "Bring LineageOS-based Android applications to the kiosk.", "asset": "waydroid-logo.webp" },
+		{ "title": "MicroBrowser", "body": "Integrate SpiderControl MicroBrowser visualizations.", "asset": "microbrowser-logo.webp" }
 	]
+	readonly property var selectedFeature: features[Math.max(0, Math.min(selected, features.length - 1))]
 	readonly property int designWidth: 820
-	readonly property int sectionGap: 50
-	readonly property int pillHeight: 32
-	readonly property int fullHeight: 128 + 8 + 360 + sectionGap + pillHeight + Math.round(sectionGap * 1.2)
-	readonly property int compactHeight: 560
-	readonly property bool compact: width < 760 || height < 620
-	readonly property int designHeight: compact ? compactHeight : fullHeight
-	readonly property real contentScale: Math.min(width / designWidth, height / designHeight)
-	readonly property bool showPills: !compact && contentScale > 0.86
+	readonly property int navigationHeight: 110
+	readonly property int minimumStageHeight: 360
+	readonly property size planetCardSize: Qt.size(58, 50)
+	readonly property int planetRingMargin: 4
+	readonly property int planetRingRadius: 15
+	readonly property real contentScale: Math.max(0.001, Math.min(width / designWidth,
+	                                                              height / 600,
+	                                                              Math.max(0, height - navigationHeight)
+	                                                              / (128 + minimumStageHeight)))
+	readonly property real availableDesignHeight: height / contentScale
+	readonly property real navigationReserve: navigationHeight / contentScale
+	readonly property real viewportAspect: width / Math.max(height, 1)
+	readonly property real landscapeFactor: Math.max(0, Math.min(1, (viewportAspect - 1) / (16 / 9 - 1)))
+	readonly property real targetOrbitAspect: 1 + landscapeFactor * (312 / 132 - 1)
 
-	function cardX(index, cardWidth, areaWidth) {
-		return index < 3 ? 0 : areaWidth - cardWidth;
+	function featureAngle(index) {
+		return t * 0.1425 - Math.PI / 2 + index * Math.PI * 2 / features.length;
 	}
 
-	function cardY(index, top) {
-		return top + (index % 3) * 112;
-	}
+	function roundedRectRayDistance(unitX, unitY, halfWidth, halfHeight, radius) {
+		var absX = Math.abs(unitX);
+		var absY = Math.abs(unitY);
+		var sideX = halfWidth / Math.max(absX, 0.001);
+		if (absY * sideX <= halfHeight - radius)
+			return sideX;
 
-	Canvas {
-		id: network
-		anchors.fill: parent
-		opacity: 0.9
-		onPaint: {
-			var ctx = getContext("2d");
-			var w = width;
-			var h = height;
-			var cx = w * 0.5;
-			var cy = h * 0.48;
-			ctx.clearRect(0, 0, w, h);
-			ctx.lineCap = "round";
+		var sideY = halfHeight / Math.max(absY, 0.001);
+		if (absX * sideY <= halfWidth - radius)
+			return sideY;
 
-			for (var i = 0; i < 18; ++i) {
-				var y = 72 + i * 34 + Math.sin(root.t * 0.7 + i) * 7;
-				ctx.beginPath();
-				ctx.moveTo(0, y);
-				ctx.bezierCurveTo(w * 0.22, y - 40, w * 0.72, y + 46, w, y - 12);
-				ctx.strokeStyle = "rgba(255,255,255,0.055)";
-				ctx.lineWidth = 1.1;
-				ctx.stroke();
-
-				var p = (root.t * (0.11 + i * 0.004) + i * 0.19) % 1;
-				var x = w * p;
-				ctx.beginPath();
-				ctx.arc(x, y + Math.sin(p * Math.PI * 2 + i) * 18, 2.2, 0, Math.PI * 2);
-				ctx.fillStyle = i % 3 === 0 ? root.red : (i % 3 === 1 ? root.orange : root.sea);
-				ctx.globalAlpha = 0.55;
-				ctx.fill();
-				ctx.globalAlpha = 1;
-			}
-
-			var glow = ctx.createRadialGradient(cx, cy, 20, cx, cy, Math.min(w, h) * 0.36);
-			glow.addColorStop(0, "rgba(255,144,30,0.2)");
-			glow.addColorStop(0.5, "rgba(236,0,0,0.08)");
-			glow.addColorStop(1, "rgba(0,127,152,0)");
-			ctx.fillStyle = glow;
-			ctx.fillRect(0, 0, w, h);
-		}
+		var cornerX = halfWidth - radius;
+		var cornerY = halfHeight - radius;
+		var projection = absX * cornerX + absY * cornerY;
+		var discriminant = projection * projection
+		                   - (cornerX * cornerX + cornerY * cornerY - radius * radius);
+		return projection + Math.sqrt(Math.max(0, discriminant));
 	}
 
 	Item {
-		id: page
 		width: root.designWidth
-		height: root.designHeight
+		height: root.availableDesignHeight
 		x: (root.width - width * root.contentScale) / 2
-		y: (root.height - height * root.contentScale) / 2
 		scale: root.contentScale
 		transformOrigin: Item.TopLeft
 
-			Row {
-				x: 34
-				y: 34
-				spacing: 16
+		Row {
+			x: 34
+			y: 34
+			spacing: 16
 
-				Image {
-					width: 62
-					height: 62
-					source: "qrc:/assets/hexdev_logo.svg"
-					fillMode: Image.PreserveAspectFit
-				}
-				Text {
-					anchors.verticalCenter: parent.verticalCenter
-					text: "Tempo2Market"
-					color: "#F5FAFC"
-					font.pixelSize: 30
-					font.bold: true
+			Image {
+				width: 62
+				height: 62
+				source: "qrc:/assets/hexdev_logo.svg"
+				fillMode: Image.PreserveAspectFit
+			}
+			Text {
+				anchors.verticalCenter: parent.verticalCenter
+				text: "hex-browser runtimes"
+				color: "#F5FAFC"
+				font.pixelSize: 28
+				font.bold: true
+			}
+		}
+
+		Item {
+			id: stage
+			x: 34
+			y: 128
+			width: parent.width - 68
+			height: Math.max(root.minimumStageHeight, parent.height - y - root.navigationReserve)
+
+			readonly property real orbitCenterX: width / 2
+			readonly property real orbitCenterY: height / 2
+			readonly property real orbitRadiusX: Math.min(312, width / 2 - 44,
+			                                             (height / 2 - 44) * root.targetOrbitAspect)
+			readonly property real orbitRadiusY: orbitRadiusX / root.targetOrbitAspect
+
+			Canvas {
+				id: orbitTrack
+				anchors.fill: parent
+				onPaint: {
+					var ctx = getContext("2d");
+					ctx.clearRect(0, 0, width, height);
+					ctx.lineCap = "round";
+
+					for (var inset = 0; inset <= 8; inset += 8) {
+						ctx.beginPath();
+						ctx.ellipse(stage.orbitCenterX - stage.orbitRadiusX + inset,
+						            stage.orbitCenterY - stage.orbitRadiusY + inset * 0.75,
+						            (stage.orbitRadiusX - inset) * 2,
+						            (stage.orbitRadiusY - inset * 0.75) * 2);
+						ctx.strokeStyle = inset === 0 ? "rgba(137, 188, 211, 0.24)" : "rgba(0, 127, 152, 0.13)";
+						ctx.lineWidth = inset === 0 ? 1.2 : 1;
+						ctx.stroke();
+					}
+
+					var selectedNode = runtimeRepeater.itemAt(root.selected);
+					if (!selectedNode)
+						return;
+
+					var cardCenter = selectedNode.mapToItem(stage, selectedNode.width / 2,
+					                                        root.planetCardSize.height / 2);
+					var nodeScale = selectedNode.scale;
+					var towardHubX = stage.orbitCenterX - cardCenter.x;
+					var towardHubY = stage.orbitCenterY - cardCenter.y;
+					var distance = Math.max(0.001, Math.sqrt(towardHubX * towardHubX
+					                                        + towardHubY * towardHubY));
+					var unitX = towardHubX / distance;
+					var unitY = towardHubY / distance;
+					var edgeDistance = root.roundedRectRayDistance(unitX, unitY,
+					                                               (root.planetCardSize.width / 2
+					                                                + root.planetRingMargin) * nodeScale,
+					                                               (root.planetCardSize.height / 2
+					                                                + root.planetRingMargin) * nodeScale,
+					                                               root.planetRingRadius * nodeScale);
+					var overlap = 1.25 * nodeScale;
+
+					ctx.lineCap = "butt";
+					ctx.beginPath();
+					ctx.moveTo(stage.orbitCenterX, stage.orbitCenterY);
+					ctx.lineTo(cardCenter.x + unitX * (edgeDistance - overlap),
+					           cardCenter.y + unitY * (edgeDistance - overlap));
+					ctx.strokeStyle = "rgba(255, 144, 30, 0.48)";
+					ctx.lineWidth = 2.6;
+					ctx.stroke();
 				}
 			}
 
-			Item {
-				id: stage
-				x: 34
-				y: 128
-				width: parent.width - 68
-				height: parent.height - 190
+			Canvas {
+				anchors.fill: hub
+				anchors.margins: -60
+				scale: 1 + Math.sin(root.t * 1.15) * 0.02
+				onPaint: {
+					var ctx = getContext("2d");
+					var x = (width - hub.width) / 2;
+					var y = (height - hub.height) / 2;
+					var radius = hub.radius;
 
-				readonly property real cardWidth: Math.min(282, Math.max(212, width * 0.28))
-				readonly property real centerWidth: Math.max(250, width - cardWidth * 2 - 70)
-				readonly property real centerX: (width - centerWidth) * 0.5
+					ctx.clearRect(0, 0, width, height);
+					ctx.fillStyle = "rgba(255, 211, 106, 0.32)";
+					ctx.shadowColor = "rgba(255, 144, 30, 0.62)";
+					ctx.shadowBlur = 34;
+					ctx.beginPath();
+					ctx.roundedRect(x, y, hub.width, hub.height, radius, radius);
+					ctx.fill();
+					ctx.shadowColor = "rgba(255, 225, 148, 0.9)";
+					ctx.shadowBlur = 15;
+					ctx.beginPath();
+					ctx.roundedRect(x, y, hub.width, hub.height, radius, radius);
+					ctx.fill();
+				}
+			}
 
-				Repeater {
-					model: root.features
-					Rectangle {
-						id: card
-						x: root.cardX(index, stage.cardWidth, stage.width)
-						y: root.cardY(index, 16)
-						width: stage.cardWidth
-						height: 94
-						radius: 8
-						color: index === root.selected ? "#F8FFFFFF" : "#DFFFFFFF"
-						border.width: index === root.selected ? 2 : 1
-						border.color: index === root.selected ? modelData.accent : "#33FFFFFF"
-						scale: index === root.selected ? 1.035 : 1
+			Rectangle {
+				id: hub
+				anchors.centerIn: parent
+				width: 220
+				height: 128
+				radius: 32
+				gradient: Gradient {
+					GradientStop { position: 0; color: "#FFFDF5" }
+					GradientStop { position: 0.58; color: "#FFF1B8" }
+					GradientStop { position: 1; color: "#FFD36A" }
+				}
+				border.width: 2
+				border.color: "#FFB52E"
+				z: 120
 
-						Behavior on scale { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
-						Behavior on color { ColorAnimation { duration: 220 } }
-						Behavior on border.color { ColorAnimation { duration: 220 } }
+				Image {
+					x: 17
+					y: 14
+					width: 31
+					height: 31
+					source: "qrc:/assets/hex-browser.svg"
+					fillMode: Image.PreserveAspectFit
+				}
 
-						Rectangle {
-							x: 0
-							y: 1
-							width: 8
-							height: parent.height - 2
-							radius: 3
-							color: modelData.accent
-						}
-						Text {
-							x: 18
-							y: 13
-							width: parent.width - 34
-							text: modelData.title
-							color: root.deep
-							font.pixelSize: 15
-							font.bold: true
-							elide: Text.ElideRight
-						}
-						Text {
-							x: 18
-							y: 38
-							width: parent.width - 34
-							text: modelData.body
-							color: "#33454E"
-							font.pixelSize: index === 0 ? 11 : 12
-							wrapMode: Text.WordWrap
-						}
-						MouseArea {
-							anchors.fill: parent
-							onPressed: {
-								root.selected = index;
-								root.userSelected = true;
-							}
-						}
-					}
+				Text {
+					x: 57
+					y: 13
+					text: "hex-browser"
+					color: "#152638"
+					font.pixelSize: 14
+					font.bold: true
+				}
+
+				Text {
+					x: 57
+					y: 32
+					text: "RUNTIME HOST  ·  " + (root.selected + 1) + " / " + root.features.length
+					color: "#7A5A27"
+					font.pixelSize: 8
+					font.bold: true
+					font.letterSpacing: 0.7
 				}
 
 				Rectangle {
-					id: hub
-					x: stage.centerX
-					y: 8
-					width: stage.centerWidth
-					height: Math.min(360, stage.height - 10)
-					radius: 12
-					color: "#26FFFFFF"
-					border.width: 1
-					border.color: root.selected === 0 ? root.red : "#33FFFFFF"
+					x: 16
+					y: 53
+					width: parent.width - 32
+					height: 1
+					color: "#D99A32"
+				}
 
-					Behavior on border.color { ColorAnimation { duration: 180 } }
+				Text {
+					anchors.horizontalCenter: parent.horizontalCenter
+					y: 62
+					width: parent.width - 30
+					text: root.selectedFeature.title
+					color: "#17283A"
+					font.pixelSize: 17
+					font.bold: true
+					horizontalAlignment: Text.AlignHCenter
+					elide: Text.ElideRight
+				}
 
-					Rectangle {
-						anchors.centerIn: parent
-						width: Math.min(parent.width, parent.height) * 0.76
-						height: width
-						radius: width / 2
-						color: "#1AFFFFFF"
-						border.width: 1
-						border.color: "#24FFFFFF"
-						rotation: root.t * 8
+				Text {
+					anchors.horizontalCenter: parent.horizontalCenter
+					y: 87
+					width: parent.width - 34
+					text: root.selectedFeature.body
+					color: "#4D5964"
+					font.pixelSize: 10
+					wrapMode: Text.WordWrap
+					horizontalAlignment: Text.AlignHCenter
+					maximumLineCount: 2
+					elide: Text.ElideRight
+				}
+			}
+
+			Repeater {
+				id: runtimeRepeater
+				model: root.features
+
+				Item {
+					id: runtimeNode
+					required property int index
+					required property var modelData
+					readonly property real angle: root.featureAngle(index)
+					readonly property real depth: (Math.sin(angle) + 1) / 2
+					readonly property real depthScale: 0.9 + depth * 0.14
+					readonly property bool active: index === root.selected
+					property real clickWobble: 0
+					x: stage.orbitCenterX + Math.cos(angle) * stage.orbitRadiusX - width / 2
+					y: stage.orbitCenterY + Math.sin(angle) * stage.orbitRadiusY - height / 2
+					width: 82
+					height: 70
+					scale: depthScale * (active ? 1.2 : 1) * (1 + clickWobble)
+					opacity: active ? 1 : 0.7 + depth * 0.3
+					z: active ? 110 : 20 + Math.round(depth * 80)
+
+					onScaleChanged: {
+						if (active)
+							orbitTrack.requestPaint();
 					}
-					Rectangle {
-						anchors.centerIn: parent
-						width: Math.min(parent.width, parent.height) * 0.48
-						height: width
-						radius: width / 2
-						color: root.selected === 0 ? "#22EC0000" : "#18FF901E"
-						border.width: 2
-						border.color: root.selected === 0 ? root.red : "#55FF901E"
-						scale: (root.selected === 0 ? 1.07 : 1) + Math.sin(root.t * 1.7) * 0.03
-
-						Behavior on color { ColorAnimation { duration: 180 } }
-						Behavior on border.color { ColorAnimation { duration: 180 } }
-					}
-
-					Image {
-						id: browserLogo
-						anchors.centerIn: parent
-						width: Math.min(parent.width, parent.height) * 0.31
-						height: width
-						source: "qrc:/assets/hex-browser.svg"
-						fillMode: Image.PreserveAspectFit
-						scale: (root.selected === 0 ? 1.12 : 1) + Math.sin(root.t * 1.4) * 0.025
-
-						MouseArea {
-							anchors.fill: parent
-							onPressed: {
-								root.selected = 0;
-								root.userSelected = true;
-							}
+					onActiveChanged: {
+						if (!active) {
+							clickSpring.stop();
+							clickWobble = 0;
 						}
 					}
 
-					Repeater {
-						model: root.features.length - 1
-						Item {
-							readonly property var item: root.features[index + 1]
-							readonly property bool active: index + 1 === root.selected
-							readonly property real angle: root.t * 0.42 + index * Math.PI * 2 / (root.features.length - 1)
-							readonly property real radius: Math.min(hub.width, hub.height) * 0.3
-							x: hub.width * 0.5 + Math.cos(angle) * radius - width / 2
-							y: hub.height * 0.5 + Math.sin(angle) * radius * 0.72 - height / 2
-							width: Math.min(84, Math.max(55, hub.width * 0.198))
-							height: Math.min(55, width * 0.68)
-							scale: active ? 1.14 : 1
-							z: active ? 1 : 0
+					SpringAnimation {
+						id: clickSpring
+						target: runtimeNode
+						property: "clickWobble"
+						from: 0.06
+						to: 0
+						spring: 4
+						damping: 0.2
+						epsilon: 0.005
+					}
 
-							Behavior on scale { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+					Rectangle {
+						anchors.horizontalCenter: parent.horizontalCenter
+						y: -7
+						width: 72
+						height: 64
+						radius: 18
+						color: "#30FFD166"
+						opacity: runtimeNode.active ? 0.7 + Math.sin(root.t * 2.2) * 0.12 : 0
+						scale: 1 + Math.sin(root.t * 1.7) * 0.035
+					}
 
-							Rectangle {
-								anchors.fill: parent
-								anchors.margins: -7
-								radius: 12
-								color: "transparent"
-								border.width: 2
-								border.color: item.accent
-								opacity: active ? 0.85 : 0
+					Rectangle {
+						anchors.horizontalCenter: parent.horizontalCenter
+						width: root.planetCardSize.width
+						height: root.planetCardSize.height
+						radius: 12
+						color: "#F7FAFC"
+						border.width: runtimeNode.active ? 2 : 1
+						border.color: runtimeNode.active ? root.orange : "#638296A7"
 
-								Behavior on opacity { NumberAnimation { duration: 180 } }
-								Behavior on border.color { ColorAnimation { duration: 180 } }
-							}
-							Rectangle {
-								anchors.fill: parent
-								radius: 8
-								color: active ? "#FFFFFFFF" : "#EBFFFFFF"
-								border.width: active ? 2 : 1
-								border.color: active ? item.accent : "#44FFFFFF"
+						Rectangle {
+							anchors.fill: parent
+							anchors.margins: -root.planetRingMargin
+							radius: root.planetRingRadius
+							color: "transparent"
+							border.width: 2
+							border.color: root.orange
+							opacity: runtimeNode.active ? 0.45 + Math.sin(root.t * 2.2) * 0.12 : 0
+						}
 
-								Behavior on color { ColorAnimation { duration: 180 } }
-								Behavior on border.color { ColorAnimation { duration: 180 } }
-							}
-							Image {
-								anchors.centerIn: parent
-								width: parent.width * 0.79
-								height: parent.height * 0.64
-								source: item.source
-								fillMode: Image.PreserveAspectFit
-							}
-							MouseArea {
-								anchors.fill: parent
-								onPressed: {
-									root.selected = index + 1;
-									root.userSelected = true;
-								}
-							}
+						Image {
+							anchors.fill: parent
+							anchors.margins: 8
+							source: "qrc:/assets/" + runtimeNode.modelData.asset
+							fillMode: Image.PreserveAspectFit
 						}
 					}
 
 					Text {
-						anchors {
-							horizontalCenter: parent.horizontalCenter
-							bottom: parent.bottom
-							bottomMargin: 22
-						}
-						width: parent.width * 0.8
-						text: "A kiosk shell for your app"
-						color: "#E7F0F5"
-						font.pixelSize: 16
-						wrapMode: Text.WordWrap
+						y: 55
+						width: parent.width
+						text: runtimeNode.modelData.title
+						color: runtimeNode.active ? "#FFFFFF" : "#B8CBD6"
+						font.pixelSize: 10
+						fontSizeMode: Text.HorizontalFit
+						minimumPixelSize: 8
+						font.bold: runtimeNode.active
 						horizontalAlignment: Text.AlignHCenter
+						elide: Text.ElideRight
 					}
-				}
-			}
 
-			Row {
-				visible: root.showPills
-				anchors.horizontalCenter: stage.horizontalCenter
-				y: stage.y + hub.y + hub.height + root.sectionGap
-				spacing: 10
-
-				Repeater {
-					model: ["Focus on your product", "We provide the shell", "Fleet Warden keeps it alive"]
-					Rectangle {
-						width: 190
-						height: root.pillHeight
-						radius: 7
-						color: "#22FFFFFF"
-						border.width: 1
-						border.color: "#33FFFFFF"
-						Text {
-							anchors.centerIn: parent
-							text: modelData
-							color: "#EAF2F5"
-							font.pixelSize: 12
-							font.bold: true
+					MouseArea {
+						anchors.fill: parent
+						onPressed: {
+							root.selected = runtimeNode.index;
+							root.nextAutoSelectionAt = root.t + root.interactionDelay;
+							clickSpring.restart();
 						}
 					}
 				}
 			}
 		}
 
-	Timer {
-		interval: 16
-		repeat: true
-		running: true
-		onTriggered: {
-			root.t += 0.016;
-			if (!root.userSelected)
-				root.selected = Math.floor(root.t * 0.55) % root.features.length;
-			network.requestPaint();
+		Text {
+			x: 112
+			y: 85
+			text: "YOUR APP   ·   OUR RUNTIME EXPERTISE   ·   YOUR PRODUCT IN FOCUS"
+			color: "#A9C0CC"
+			font.pixelSize: 11
+			font.bold: true
+			font.letterSpacing: 0.8
 		}
 	}
 
-	CodeLineBadge { lines: 321 }
+	FrameAnimation {
+		running: true
+		onTriggered: {
+			root.t = elapsedTime;
+			if (root.t >= root.nextAutoSelectionAt) {
+				root.selected = (root.selected + 1) % root.features.length;
+				root.nextAutoSelectionAt = root.t + root.autoSelectionDelay;
+			}
+			orbitTrack.requestPaint();
+		}
+	}
+
+	CodeLineBadge { lines: 356 }
 }
