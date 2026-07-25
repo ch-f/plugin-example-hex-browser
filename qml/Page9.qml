@@ -11,8 +11,6 @@ Rectangle {
 	property real spinX: 0
 	property real spinY: 0.3
 	readonly property real dragScale: 0.5
-	readonly property bool activePage: parent !== null && parent.opacity >= 0.99
-	readonly property bool retainAfterFade: true
 
 	function xDragDirection(yRotation) {
 		return Math.cos(yRotation * Math.PI / 180) < 0 ? -1 : 1;
@@ -88,7 +86,7 @@ Rectangle {
 	Timer {
 		interval: 16
 		repeat: true
-		running: root.activePage && !pressHandler.pressed && !dragHandler.active
+		running: root.enabled && !pressHandler.pressed && !dragHandler.active
 		onTriggered: {
 			modelRoot.eulerRotation.x += root.spinX;
 			modelRoot.eulerRotation.y += root.spinY;
@@ -134,5 +132,5 @@ Rectangle {
 		}
 	}
 
-	CodeLineBadge { lines: 118 }
+	CodeLineBadge { lines: 116 }
 }

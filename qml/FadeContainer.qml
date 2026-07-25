@@ -1,135 +1,135 @@
 // SPDX-License-Identifier: MIT
 import QtQuick
-import QtQuick.Controls
 
 Item {
 	id: fadeContainer
 	anchors.fill: parent
 
-	// Holds the URL of the current page displayed.
-	property string currentSource: ""
-	property string pendingSource: ""
-	property var currentLoader: null
-	property var loaders: []
-	property var retainedLoaders: ({})
+	property string requestedSource: ""
+	property Loader currentLoader: null
+	property Loader incomingLoader: null
+	readonly property string currentSource:
+		currentLoader === null ? "" : String(currentLoader.source)
 
-	// Initiates a crossfade transition from the current
-	// page to the page specified by newSource
 	function switchTo(newSource) {
 		newSource = String(newSource)
-		if (newSource === currentSource)
+		if (newSource === "")
 			return
 
-		if (fadeIn.target !== null || crossFadeAnimation.running) {
-			pendingSource = newSource
-			return
-		}
+		requestedSource = newSource
+		advance()
+	}
 
-		var newLoader = loaderFor(newSource)
+	function advance() {
+		if (requestedSource === "" || incomingLoader !== null
+				|| (currentLoader !== null && currentLoader.status === Loader.Loading))
+			return
+
+		if (requestedSource === currentSource)
+			return
+
 		if (currentLoader === null) {
-			currentSource = newSource
-			currentLoader = newLoader
-			newLoader.source = newSource
-			newLoader.opacity = 1
-			newLoader.z = 1
+			currentLoader = firstLoader
+			currentLoader.opacity = 1
+			currentLoader.z = 1
+			currentLoader.source = requestedSource
 			return
 		}
 
-		// Load the new page in an inactive loader.
-		fadeOut.target = currentLoader
-		fadeIn.target = newLoader
-		newLoader.opacity = 0
-		newLoader.z = 2
-		if (String(newLoader.source) !== newSource)
-			newLoader.source = newSource
+		incomingLoader = currentLoader === firstLoader ? secondLoader : firstLoader
+		incomingLoader.opacity = 0
+		incomingLoader.z = 2
+		incomingLoader.source = requestedSource
+	}
 
-		if (newLoader.status === Loader.Ready)
+	function handleStatus(loader) {
+		if (loader.status === Loader.Error) {
+			fail(loader)
+			return
+		}
+
+		if (loader.status !== Loader.Ready)
+			return
+
+		if (loader === currentLoader) {
+			advance()
+			return
+		}
+
+		if (loader !== incomingLoader)
+			return
+
+		// Drop a superseded page before it ever becomes visible.
+		if (String(loader.source) !== requestedSource) {
+			incomingLoader = null
+			release(loader)
+			advance()
+		} else {
 			crossFadeAnimation.start()
-	}
-
-	function loaderFor(source) {
-		if (retainedLoaders[source])
-			return retainedLoaders[source]
-
-		for (var i = 0; i < loaders.length; ++i) {
-			if (String(loaders[i].source) === source)
-				return loaders[i]
 		}
-
-		for (var j = 0; j < loaders.length; ++j) {
-			if (loaders[j] !== currentLoader && !retains(loaders[j]))
-				return loaders[j]
-		}
-
-		return createLoader()
-	}
-
-	function createLoader() {
-		var loader = loaderComponent.createObject(fadeContainer)
-		loaders.push(loader)
-		return loader
-	}
-
-	function retains(loader) {
-		return loader.item && loader.item.retainAfterFade === true
 	}
 
 	function release(loader) {
-		if (retains(loader)) {
-			retainedLoaders[String(loader.source)] = loader
-		} else {
-			loader.source = ""
-		}
-
 		loader.opacity = 0
 		loader.z = 0
+		loader.source = ""
 	}
 
-	function startWhenReady(loader) {
-		if (loader === fadeIn.target && loader.status === Loader.Ready && !crossFadeAnimation.running)
-			crossFadeAnimation.start()
+	function fail(loader) {
+		var failedSource = String(loader.source)
+		if (loader === incomingLoader) {
+			incomingLoader = null
+			release(loader)
+			if (requestedSource === failedSource)
+				requestedSource = currentSource
+		} else if (loader === currentLoader) {
+			currentLoader = null
+			release(loader)
+			if (requestedSource === failedSource)
+				requestedSource = ""
+		} else {
+			return
+		}
+
+		console.warn("Failed to load page:", failedSource)
+		advance()
 	}
 
 	function finishFade() {
-		var oldLoader = fadeOut.target
-		var newLoader = fadeIn.target
-		if (!oldLoader || !newLoader)
+		var oldLoader = currentLoader
+		if (incomingLoader === null)
 			return
 
-		// Keep the already-loaded incoming page alive as the active page.
-		currentSource = String(newLoader.source)
-		currentLoader = newLoader
-		newLoader.opacity = 1
-		newLoader.z = 1
+		currentLoader = incomingLoader
+		incomingLoader = null
+		currentLoader.opacity = 1
+		currentLoader.z = 1
 		release(oldLoader)
-
-		fadeOut.target = null
-		fadeIn.target = null
-
-		if (pendingSource !== "") {
-			var source = pendingSource
-			pendingSource = ""
-			switchTo(source)
-		}
+		advance()
 	}
 
-	Component {
-		id: loaderComponent
+	Loader {
+		id: firstLoader
+		anchors.fill: parent
+		opacity: 0
+		enabled: opacity > 0.01
+		asynchronous: true
+		onStatusChanged: fadeContainer.handleStatus(firstLoader)
+	}
 
-		Loader {
-			id: pageLoader
-			anchors.fill: parent
-			opacity: 0
-			enabled: opacity > 0.01
-			asynchronous: true
-			onStatusChanged: fadeContainer.startWhenReady(pageLoader)
-		}
+	Loader {
+		id: secondLoader
+		anchors.fill: parent
+		opacity: 0
+		enabled: opacity > 0.01
+		asynchronous: true
+		onStatusChanged: fadeContainer.handleStatus(secondLoader)
 	}
 
 	ParallelAnimation {
 		id: crossFadeAnimation
-		PropertyAnimation { id: fadeOut; property: "opacity"; to: 0; duration: 600; easing.type: Easing.InOutQuad }
-		PropertyAnimation { id: fadeIn; property: "opacity"; to: 1; duration: 600; easing.type: Easing.InOutQuad }
-		onStopped: fadeContainer.finishFade()
+		PropertyAnimation { target: fadeContainer.currentLoader; property: "opacity"; to: 0; duration: 600; easing.type: Easing.InOutQuad }
+		PropertyAnimation { target: fadeContainer.incomingLoader; property: "opacity"; to: 1; duration: 600; easing.type: Easing.InOutQuad }
+		onFinished: fadeContainer.finishFade()
 	}
 }
